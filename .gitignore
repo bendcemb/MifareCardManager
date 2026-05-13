@@ -1,0 +1,28 @@
+# Python bytecode (ไฟล์ที่คอมไพล์แล้ว)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment (โฟลเดอร์เก็บ Library)
+venv/
+env/
+ENV/
+
+# PyInstaller output
+build/
+dist/
+*.spec
+
+# Database & Logs
+*.db
+*.sqlite3
+*.csv
+*.log
+
+# Operating System files
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
