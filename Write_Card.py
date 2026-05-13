@@ -8,6 +8,10 @@ import time
 from tkinter import messagebox
 import os
 
+import tkinter as tk
+from tkinter import ttk
+import webbrowser
+
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
@@ -20,9 +24,10 @@ class NFCManagerApp(ctk.CTk):
         self.DEVELOPER = "Bendcemb Software Team"
         self.COMPANY = "bCloud Co., Ltd."
         self.LICENCE = "Commercial Licence (Proprietary)"
+        self.PHONE = "091-825-3266"
         self.CONTACT = "bendcemb@gmail.com"
 
-        self.title(f"NFC Employee Manager - {self.APP_VERSION}")
+        self.title(f"Mifare Card Manager - {self.APP_VERSION}")
         self.geometry("600x680")
         
         self.last_uid = None
@@ -43,7 +48,7 @@ class NFCManagerApp(ctk.CTk):
         threading.Thread(target=self.monitor_loop, daemon=True).start()
 
     def setup_read_tab(self, parent):
-        self.lbl_read = ctk.CTkLabel(parent, text="ระบบบันทึกการแตะบัตรอัตโนมัติ", font=("TH Sarabun New", 20, "bold"))
+        self.lbl_read = ctk.CTkLabel(parent, text="ระบบอ่านข้อมูลบัตร Mifare", font=("TH Sarabun New", 20, "bold"))
         self.lbl_read.pack(pady=5)
 
         self.read_status = ctk.CTkLabel(parent, text="สถานะ: กำลังรอการแตะบัตร...", text_color="orange")
@@ -97,18 +102,85 @@ class NFCManagerApp(ctk.CTk):
                                  command=self.show_about_info)
         btn_info.pack(side="right")
 
+    # def show_about_info(self):
+    #     """แสดงหน้าต่าง Pop-up ข้อมูลลิขสิทธิ์และการติดต่อ"""
+    #     about_text = (
+    #         f"Software: Mifare Card Manager\n"
+    #         f"Version: {self.APP_VERSION}\n\n"
+    #         f"Developer: {self.DEVELOPER}\n"
+    #         f"Company: {self.COMPANY}\n"
+    #         f"Licence: {self.LICENCE}\n"
+    #         f"Contact: {self.CONTACT}\n"
+    #         f"Phone: {self.PHONE}\n\n"
+            
+    #         f"© 2026 {self.COMPANY}. All Rights Reserved."
+    #     )
+    #     messagebox.showinfo("About Application", about_text)
+    
+
+
     def show_about_info(self):
-        """แสดงหน้าต่าง Pop-up ข้อมูลลิขสิทธิ์และการติดต่อ"""
-        about_text = (
-            f"Software: NFC Employee Manager\n"
+        """แสดงหน้าต่าง Pop-up ข้อมูลลิขสิทธิ์และการติดต่อ (คัดลอกได้ / คลิกลิงก์ได้)"""
+
+        # 1. สร้างหน้าต่าง Pop-up ใหม่
+        about_win = tk.Toplevel(self)
+        about_win.title("About Application")
+        about_win.geometry("400x320")
+        about_win.resizable(False, False)
+        about_win.grab_set()  # บังคับให้จัดการหน้าต่างนี้ก่อนกลับไปหน้าหลัก
+
+        # 2. ส่วนข้อมูลทั่วไป (สามารถลากคลุมเพื่อคัดลอกได้)
+        general_text = (
+            f"Software: Mifare Card Manager\n"
             f"Version: {self.APP_VERSION}\n\n"
             f"Developer: {self.DEVELOPER}\n"
             f"Company: {self.COMPANY}\n"
-            f"Licence: {self.LICENCE}\n"
-            f"Contact: {self.CONTACT}\n\n"
-            f"© 2026 {self.COMPANY}. All Rights Reserved."
+            f"Licence: {self.LICENCE}\n\n"
+            
+            f"Contact: {self.CONTACT}\n"
+            f"Phone: {self.PHONE}\n\n"
         )
-        messagebox.showinfo("About Application", about_text)
+
+        txt_area = tk.Text(about_win, wrap="word", background=about_win.cget("background"), 
+                           borderwidth=0, highlightthickness=0, font=("Helvetica", 10))
+        txt_area.insert("1.0", general_text)
+        txt_area.configure(state="disabled")  # อ่านและคัดลอกได้อย่างเดียว ห้ามแก้ไขข้อมูล
+        txt_area.pack(padx=20, pady=(15, 0), fill="x")
+
+        # 3. ส่วนข้อมูลติดต่อและอีเมล (ทำเป็น Link สีฟ้าและมีเส้นใต้)
+        contact_frame = ttk.Frame(about_win)
+        contact_frame.pack(padx=20, pady=5, fill="x")
+
+        # ฟังก์ชันสำหรับเปิด Email Client หรือ Web Browser เมื่อมีการคลิก
+        def open_link(url):
+            webbrowser.open(url)
+
+            # แสดงข้อความ Contact: และตัวลิงก์อีเมล
+            lbl_contact_title = ttk.Label(contact_frame, text="Contact: ", font=("Helvetica", 10))
+            lbl_contact_title.pack(side="left")
+            
+            lbl_email_link = tk.Label(contact_frame, text=self.CONTACT, fg="blue", cursor="hand2", 
+                                      font=("Helvetica", 10, "underline"))
+            lbl_email_link.pack(side="left")
+            # ผูกเหตุการณ์คลิกเมาส์ซ้าย เพื่อเปิดโปรแกรมส่งอีเมลอัตโนมัติ
+            lbl_email_link.bind("<Button-1>", lambda e: open_link(f"mailto:{self.CONTACT}"))
+    
+            # 4. ส่วนข้อมูลเบอร์โทรศัพท์และลิขสิทธิ์
+            footer_text = (
+                f"\nPhone: {self.PHONE}\n\n"
+                f"© 2026 {self.COMPANY}. All Rights Reserved."
+            )
+            
+            txt_footer = tk.Text(about_win, wrap="word", background=about_win.cget("background"), 
+                                 borderwidth=0, highlightthickness=0, font=("Helvetica", 10))
+            txt_footer.insert("1.0", footer_text)
+            txt_footer.configure(state="disabled")
+            txt_footer.pack(padx=20, pady=0, fill="x")
+    
+            # 5. ปุ่มปิดหน้าต่าง Pop-up
+            btn_close = ttk.Button(about_win, text="OK", command=about_win.destroy, width=10)
+            btn_close.pack(side="bottom", pady=15)
+
 
     def hex_to_decimal_serial(self, uid_hex_str):
         try:
@@ -154,7 +226,7 @@ class NFCManagerApp(ctk.CTk):
                         b_text = "".join([chr(x) if 32 <= x <= 126 else "" for x in b_data]).strip()
                         
                         ts = datetime.now().strftime('%H:%M:%S')
-                        log_msg = f"[{ts}] HEX: {uid_hex} | SN: {serial_dec} | Card ID: {b_text}\n"
+                        log_msg = f"[{ts}] UID: {uid_hex} | SN: {serial_dec} | Card ID: {b_text}\n"
                         
                         self.read_log.insert("0.0", log_msg)
                         self.entry_write.delete(0, "end")
