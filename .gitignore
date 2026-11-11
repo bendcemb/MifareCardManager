@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 # Virtual Environment (โฟลเดอร์เก็บ Library)
+.venv/
 venv/
 env/
 ENV/
